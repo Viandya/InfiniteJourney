@@ -39,36 +39,72 @@ body{
 
 #achievement{
     position:fixed;
-    top:20px;
+    top:25px;
     left:50%;
     transform:translateX(-50%);
-    background:gold;
-    color:black;
-    padding:12px 20px;
-    border-radius:20px;
-    font-weight:bold;
+
+    background:#708238;
+    color:white;
+
+    padding:14px 24px;
+    border-radius:18px;
+
+    font-size:16px;
+    font-weight:600;
+
+    box-shadow:0 8px 25px rgba(0,0,0,0.25);
+
     display:none;
     z-index:1000;
+
+    animation:slideDown .4s ease;
+}
+
+@keyframes slideDown{
+    from{
+        opacity:0;
+        transform:translate(-50%,-20px);
+    }
+    to{
+        opacity:1;
+        transform:translate(-50%,0);
+    }
+}
+
+#distanceCounter{
+    position:fixed;
+    top:20px;
+    right:20px;
+
+    background:rgba(0,0,0,0.7);
+    color:white;
+
+    padding:10px 15px;
+    border-radius:15px;
+
+    font-weight:bold;
+    z-index:999;
 }
 </style>
 </head>
 <body>
 
 <div id="achievement"></div>
-
+<div id="distanceCounter">🚶 0 м</div>
 <div id="feed"></div>
 
 <script>
 const feed = document.getElementById("feed");
 const achievement = document.getElementById("achievement");
-
+const counter = document.getElementById("distanceCounter");
 let distance = 0;
 
 const achievements = [
-    {meters:100, text:"🏅 Пройдено 100 метров"},
-    {meters:1000, text:"🚀 Пройден 1 километр"},
-    {meters:5000, text:"🔥 Пройдено 5 километров"},
-    {meters:10000, text:"👑 Пройдено 10 километров"}
+    {meters:100, text:"🌱 Новичок — 100 м"},
+    {meters:1000, text:"🌳 Исследователь — 1 км"},
+    {meters:5000, text:"⛰️ Путешественник — 5 км"},
+    {meters:10000, text:"🦅 Странник — 10 км"},
+    {meters:50000, text:"🌍 Покоритель мира — 50 км"}
 ];
 
 const unlocked = new Set();
@@ -96,15 +132,33 @@ function showAchievement(text){
     },3000);
 }
 
+// Функция для расчёта расстояния на основе размера экрана
+function calculateDistance(){
+    const screenHeightPx = window.innerHeight;
+    const screenHeightCm = 15; // условная высота экрана в см
+    const cmPerPixel = screenHeightCm / screenHeightPx;
+    const distanceCm = window.scrollY * cmPerPixel;
+    return Math.floor(distanceCm / 100);
+}
+
+// Начальная загрузка постов
 for(let i=0;i<10;i++){
     addPost();
 }
 
 window.addEventListener("scroll", ()=>{
 
-    // Каждые 100px считаем за 1 метр
-    distance = Math.floor(window.scrollY / 100);
+    // Расчёт пройденного расстояния с помощью новой функции
+    distance = calculateDistance();
 
+    // Обновление счётчика с отображением метров или километров
+    if(distance < 1000){
+        counter.textContent = `🚶 ${distance} м`;
+    }else{
+        counter.textContent = `🚶 ${(distance/1000).toFixed(2)} км`;
+    }
+
+    // Проверка достижений
     achievements.forEach(a=>{
         if(distance >= a.meters && !unlocked.has(a.meters)){
             unlocked.add(a.meters);
