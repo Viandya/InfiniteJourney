@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бесконечная лента</title>
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+
+#feed{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.card{
+    width:95%;
+    max-width:500px;
+    margin:10px 0;
+    background:#222;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.card img{
+    width:100%;
+    display:block;
+}
+
+.card p{
+    padding:10px;
+}
+
+#achievement{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:gold;
+    color:black;
+    padding:12px 20px;
+    border-radius:20px;
+    font-weight:bold;
+    display:none;
+    z-index:1000;
+}
+</style>
+</head>
+<body>
+
+<div id="achievement"></div>
+
+<div id="feed"></div>
+
+<script>
+const feed = document.getElementById("feed");
+const achievement = document.getElementById("achievement");
+
+let distance = 0;
+
+const achievements = [
+    {meters:100, text:"🏅 Пройдено 100 метров"},
+    {meters:1000, text:"🚀 Пройден 1 километр"},
+    {meters:5000, text:"🔥 Пройдено 5 километров"},
+    {meters:10000, text:"👑 Пройдено 10 километров"}
+];
+
+const unlocked = new Set();
+
+function addPost(){
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const randomId = Math.floor(Math.random()*1000);
+
+    card.innerHTML = `
+        <img src="https://picsum.photos/400/600?random=${randomId}">
+        <p>Пост №${randomId}</p>
+    `;
+
+    feed.appendChild(card);
+}
+
+function showAchievement(text){
+    achievement.textContent = text;
+    achievement.style.display = "block";
+
+    setTimeout(()=>{
+        achievement.style.display = "none";
+    },3000);
+}
+
+for(let i=0;i<10;i++){
+    addPost();
+}
+
+window.addEventListener("scroll", ()=>{
+
+    // Каждые 100px считаем за 1 метр
+    distance = Math.floor(window.scrollY / 100);
+
+    achievements.forEach(a=>{
+        if(distance >= a.meters && !unlocked.has(a.meters)){
+            unlocked.add(a.meters);
+            showAchievement(a.text);
+        }
+    });
+
+    // Подгрузка новых карточек
+    if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 500){
+        for(let i=0;i<5;i++){
+            addPost();
+        }
+    }
+});
+</script>
+
+</body>
+</html>
